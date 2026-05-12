@@ -1,0 +1,9 @@
+# Rust build artifacts
+**/target/
+
+# Optional lockfiles for these small assignment binaries
+**/Cargo.lock
+
+# Common OS-generated files
+.DS_Store
+Thumbs.db

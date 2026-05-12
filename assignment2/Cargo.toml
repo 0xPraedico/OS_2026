@@ -1,0 +1,6 @@
+[package]
+name = "assignment2_fs_interaction"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
