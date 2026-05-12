@@ -1,22 +1,26 @@
-use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
 use std::thread;
 
 const THREAD_COUNT: u64 = 4;
 const INCREMENTS_PER_THREAD: u64 = 1_000_000;
+static mut UNSAFE_COUNTER: u64 = 0;
 
-fn part1_lost_update_demo() {
+fn part1_true_data_race_demo() {
     let expected = THREAD_COUNT * INCREMENTS_PER_THREAD;
-    let counter = Arc::new(AtomicU64::new(0));
+    unsafe {
+        UNSAFE_COUNTER = 0;
+    }
     let mut handles = Vec::new();
 
     for _ in 0..THREAD_COUNT {
-        let shared_counter = Arc::clone(&counter);
-        let handle = thread::spawn(move || {
+        let handle = thread::spawn(|| {
             for i in 0..INCREMENTS_PER_THREAD {
-                // Intentionally incorrect pattern: load + store can lose updates.
-                let current = shared_counter.load(Ordering::Relaxed);
-                shared_counter.store(current + 1, Ordering::Relaxed);
+                // Intentionally unsafe shared mutable access without synchronization.
+                // This creates a true data race and is undefined behavior.
+                unsafe {
+                    let current = UNSAFE_COUNTER;
+                    UNSAFE_COUNTER = current + 1;
+                }
 
                 if i % 1_000 == 0 {
                     thread::yield_now();
@@ -30,8 +34,8 @@ fn part1_lost_update_demo() {
         handle.join().expect("A thread panicked in Part 1");
     }
 
-    let actual = counter.load(Ordering::Relaxed);
-    println!("Part 1: Lost update demonstration (incorrect atomic usage)");
+    let actual = unsafe { UNSAFE_COUNTER };
+    println!("Part 1: True data race demonstration (unsafe global counter)");
     println!("Expected result: {}", expected);
     println!("Actual result: {}", actual);
     println!("Race condition demonstrated: {}", actual != expected);
@@ -66,6 +70,6 @@ fn part2_mutex_solution() {
 }
 
 fn main() {
-    part1_lost_update_demo();
+    part1_true_data_race_demo();
     part2_mutex_solution();
 }
