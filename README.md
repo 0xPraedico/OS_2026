@@ -60,8 +60,9 @@ Execution screenshot:
 ## Assignment 4: Threads & Synchronization
 
 A race condition happens when multiple threads access and modify shared data at the same time, and the final result depends on timing.
+By default, safe Rust prevents memory data races.
 
-In Part 1, safe Rust still prevents true memory data races, so the program demonstrates a lost update problem by intentionally using `AtomicU64` incorrectly with separate `load` and `store` operations. In Part 2, a `Mutex` protects the critical section, serializes updates, and guarantees the correct final counter value. This assignment is implemented as a small Cargo project with no external dependencies.
+In Part 1, the program intentionally uses `unsafe` with a shared `static mut` counter updated by multiple threads without synchronization. This creates a true data race (undefined behavior) for educational demonstration purposes. In Part 2, a `Mutex` protects the critical section, serializes updates, and guarantees the correct final counter value. This assignment is implemented as a small Cargo project with no external dependencies.
 
 Run command:
 
